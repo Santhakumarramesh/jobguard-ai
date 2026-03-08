@@ -1,0 +1,20 @@
+# Dependencies
+node_modules/
+__pycache__/
+*.pyc
+.env
+.DS_Store
+Thumbs.db
+
+# Model artifacts (large files)
+*.pkl
+*.h5
+*.joblib
+model_artifacts/
+outputs/
+data/
+
+# Development
+.vscode/
+.idea/
+*.log

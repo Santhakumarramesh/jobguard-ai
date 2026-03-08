@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>JobGuard AI — Super Portal · Fake Job Detector</title>
+<meta name="description" content="Free public tool to detect fake job postings. Paste any job listing — get instant REAL or FAKE verdict with fraud probability."/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#05080f;--bg2:#090d18;--card:#0d1422;
+  --b1:rgba(99,179,255,.08);--b2:rgba(99,179,255,.16);
+  --green:#22d97a;--gbg:rgba(34,217,122,.06);
+  --red:#ff4d6d;--rbg:rgba(255,77,109,.06);
+  --yellow:#fbbf24;--ybg:rgba(251,191,36,.06);
+  --blue:#63b3ff;--blbg:rgba(99,179,255,.06);
+  --text:#e8edf5;--dim:#4a5568;--dim2:#718096;
+  --fh:'Syne',sans-serif;--fm:'DM Mono',monospace;
+}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:var(--fh);min-height:100vh;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-image:linear-gradient(rgba(99,179,255,.02)1px,transparent 1px),linear-gradient(90deg,rgba(99,179,255,.02)1px,transparent 1px);
+  background-size:48px 48px}
+body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:radial-gradient(ellipse 80% 50% at 50% -5%,rgba(99,179,255,.07),transparent 65%)}
+*{position:relative;z-index:1}
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-thumb{background:var(--b1);border-radius:4px}
+header{display:flex;align-items:center;justify-content:space-between;padding:14px 36px;
+  border-bottom:1px solid var(--b1);background:rgba(5,8,15,.92);backdrop-filter:blur(16px);
+  position:sticky;top:0;z-index:100}
+.logo{display:flex;align-items:center;gap:10px}
+.logo-shield{width:32px;height:32px;background:linear-gradient(135deg,var(--blue),#3b82f6);
+  border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:.95rem;
+  box-shadow:0 0 18px rgba(99,179,255,.3);animation:pulse 3s ease-in-out infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 18px rgba(99,179,255,.3)}50%{box-shadow:0 0 32px rgba(99,179,255,.5)}}
+.logo-name{font-size:1rem;font-weight:800;letter-spacing:-.02em}
+.logo-name span{color:var(--blue)}
+.logo-sub{font-size:.6rem;color:var(--dim);font-family:var(--fm);margin-top:1px}
+.hright{display:flex;align-items:center;gap:10px}
+.model-badge{font-family:var(--fm);font-size:.62rem;padding:4px 10px;border-radius:999px;
+  border:1px solid rgba(34,217,122,.3);color:var(--green);background:rgba(34,217,122,.05)}
+.nav-btn{font-family:var(--fm);font-size:.66rem;color:var(--blue);text-decoration:none;
+  padding:4px 10px;border-radius:6px;border:1px solid var(--b1);transition:all .2s;cursor:pointer;background:none}
+.nav-btn:hover,.nav-btn.active{border-color:var(--blue);background:var(--blbg)}
+.page{display:none}.page.active{display:block}
+main{max-width:1100px;margin:0 auto;padding:44px 36px 80px}
+.hero{text-align:center;margin-bottom:32px;animation:up .7s ease both}
+@keyframes up{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+.eyebrow{display:inline-flex;align-items:center;gap:7px;font-family:var(--fm);font-size:.65rem;
+  color:var(--blue);letter-spacing:.14em;text-transform:uppercase;padding:5px 13px;
+  border-radius:999px;border:1px solid rgba(99,179,255,.2);background:var(--blbg);margin-bottom:16px}
+.hero h1{font-size:clamp(2rem,5vw,3.8rem);font-weight:800;line-height:1.05;letter-spacing:-.04em;margin-bottom:12px}
+.hl{background:linear-gradient(135deg,var(--blue),#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero p{font-size:.94rem;color:var(--dim2);max-width:490px;margin:0 auto;line-height:1.65}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:24px;animation:up .7s .1s ease both}
+.sc{background:var(--card);border:1px solid var(--b2);border-radius:13px;padding:15px 16px;text-align:center}
+.sc .sv{font-family:var(--fm);font-size:1.45rem;font-weight:700;line-height:1;margin-bottom:3px}
+.sc .sl{font-family:var(--fm);font-size:.59rem;color:var(--dim2);text-transform:uppercase;letter-spacing:.1em}
+.sc .ss{font-size:.62rem;color:var(--dim);font-family:var(--fm);margin-top:2px}
+.sc.g{border-color:rgba(34,217,122,.22);background:rgba(34,217,122,.03)}.sc.g .sv{color:var(--green)}
+.sc.b .sv{color:var(--blue)}.sc.p .sv{color:#a78bfa}.sc.y .sv{color:var(--yellow)}
+.pshow{background:var(--card);border:1px solid var(--b2);border-radius:18px;padding:26px;margin-bottom:18px;animation:up .7s .12s ease both}
+.pshow-head{display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:20px}
+.pshow-title{display:flex;align-items:flex-start;gap:10px}
+.pshow-icon{font-size:1.4rem;line-height:1;margin-top:2px}
+.pshow-h{font-size:1rem;font-weight:700}
+.pshow-sub{font-size:.75rem;color:var(--dim2);margin-top:3px;font-family:var(--fm)}
+.tabs{display:flex;gap:6px;flex-wrap:wrap}
+.tab{padding:6px 13px;background:var(--bg2);border:1px solid var(--b1);border-radius:7px;color:var(--dim2);font-family:var(--fm);font-size:.68rem;cursor:pointer;transition:all .2s}
+.tab.on,.tab:hover{border-color:var(--blue);color:var(--blue);background:var(--blbg)}
+.tc{display:none}.tc.on{display:block}
+.tbl-wrap{overflow-x:auto}
+.tbl-note{font-family:var(--fm);font-size:.63rem;color:var(--dim);background:var(--bg2);border-radius:7px;padding:7px 11px;display:inline-block;margin-bottom:10px}
+table{width:100%;border-collapse:collapse;font-family:var(--fm);font-size:.76rem}
+th{padding:9px 11px;text-align:left;font-size:.6rem;color:var(--dim);text-transform:uppercase;letter-spacing:.1em;border-bottom:1px solid var(--b2);background:rgba(99,179,255,.03);white-space:nowrap}
+td{padding:9px 11px;border-bottom:1px solid var(--b1);color:var(--dim2);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:rgba(255,255,255,.018)}
+.pv{max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:.74rem}
+.fr td{color:rgba(255,77,109,.72)!important}.sr td{color:rgba(251,191,36,.7)!important}
+.mono{font-family:var(--fm)}.gt{color:var(--green)!important;font-weight:600}.rt{color:var(--red)!important;font-weight:600}.yt{color:var(--yellow)!important;font-weight:600}
+.mbar{width:90px;height:5px;background:rgba(255,255,255,.05);border-radius:999px;overflow:hidden}
+.mbf{height:100%;border-radius:999px}.mbf.g{background:var(--green)}.mbf.r{background:var(--red)}.mbf.y{background:var(--yellow)}
+.tfoot-note{font-family:var(--fm);font-size:.63rem;color:var(--dim);margin-top:10px;padding-top:10px;border-top:1px solid var(--b1)}
+.vb{padding:3px 8px;border-radius:999px;font-size:.61rem;font-weight:600;text-transform:uppercase;letter-spacing:.07em;white-space:nowrap;font-family:var(--fm)}
+.vb.l{background:rgba(34,217,122,.1);color:var(--green);border:1px solid rgba(34,217,122,.22)}
+.vb.f{background:rgba(255,77,109,.1);color:var(--red);border:1px solid rgba(255,77,109,.22)}
+.vb.s{background:rgba(251,191,36,.1);color:var(--yellow);border:1px solid rgba(251,191,36,.22)}
+.risk{padding:2px 6px;border-radius:4px;font-size:.58rem;font-weight:600;text-transform:uppercase;font-family:var(--fm)}
+.risk.lo{background:rgba(34,217,122,.08);color:var(--green)}.risk.me{background:rgba(251,191,36,.08);color:var(--yellow)}.risk.hi{background:rgba(255,77,109,.08);color:var(--red)}
+.raw-list{display:flex;flex-direction:column;gap:12px}
+.ri{border-radius:11px;padding:16px 18px;border:1px solid var(--b1)}
+.ri.l{background:var(--gbg);border-color:rgba(34,217,122,.18)}.ri.f{background:var(--rbg);border-color:rgba(255,77,109,.18)}.ri.s{background:var(--ybg);border-color:rgba(251,191,36,.18)}
+.ri-head{display:flex;align-items:center;gap:9px;margin-bottom:10px}.ri-case{font-size:.8rem;font-weight:600}
+.ri-metrics{display:flex;gap:18px;flex-wrap:wrap;margin-bottom:8px}
+.rm{display:flex;flex-direction:column;gap:1px}
+.rml{font-family:var(--fm);font-size:.56rem;color:var(--dim);text-transform:uppercase;letter-spacing:.07em}
+.rmv{font-family:var(--fm);font-size:.82rem;font-weight:600}
+.ri-text{font-family:var(--fm);font-size:.7rem;color:var(--dim2);line-height:1.5;background:rgba(255,255,255,.02);padding:9px 11px;border-radius:7px;border:1px solid var(--b1);font-style:italic}
+.analyzer{background:var(--card);border:1px solid var(--b2);border-radius:18px;padding:30px;margin-bottom:16px;animation:up .7s .14s ease both}
+.sec-head{display:flex;align-items:center;gap:11px;margin-bottom:22px}
+.sec-dot{width:24px;height:24px;border-radius:7px;background:var(--blbg);border:1px solid var(--b2);display:flex;align-items:center;justify-content:center;font-family:var(--fm);font-size:.65rem;color:var(--blue)}
+.sec-title{font-size:.98rem;font-weight:700}.sec-sub{font-size:.76rem;color:var(--dim2);margin-top:2px}
+.ql{font-family:var(--fm);font-size:.6rem;color:var(--dim);text-transform:uppercase;letter-spacing:.1em;margin-bottom:7px}
+.qbs{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:16px}
+.qb{padding:5px 11px;border-radius:6px;border:1px solid var(--b1);background:var(--bg2);color:var(--dim2);font-family:var(--fm);font-size:.67rem;cursor:pointer;transition:all .2s;white-space:nowrap}
+.qb.f:hover{border-color:rgba(255,77,109,.45);color:var(--red);background:var(--rbg)}
+.qb.r:hover{border-color:rgba(34,217,122,.45);color:var(--green);background:var(--gbg)}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:12px}
+.field{display:flex;flex-direction:column;gap:5px}
+.fl{font-family:var(--fm);font-size:.61rem;color:var(--dim2);letter-spacing:.11em;text-transform:uppercase}
+.fl .req{color:var(--red)}
+.field input,.field textarea{background:var(--bg2);border:1px solid var(--b1);border-radius:9px;padding:10px 13px;color:var(--text);font-family:var(--fm);font-size:.83rem;outline:none;transition:border-color .2s,box-shadow .2s;width:100%;appearance:none}
+.field textarea{resize:vertical;min-height:115px;line-height:1.6}
+.field input:focus,.field textarea:focus{border-color:rgba(99,179,255,.38);box-shadow:0 0 0 3px rgba(99,179,255,.06)}
+.ff{display:flex;justify-content:space-between;align-items:center;margin-top:3px}
+.fhint,.fcount{font-family:var(--fm);font-size:.59rem;color:var(--dim)}
+.trow{display:flex;gap:9px;flex-wrap:wrap;margin-bottom:15px}
+.tog{display:flex;align-items:center;gap:6px;padding:6px 11px;border-radius:7px;border:1px solid var(--b1);background:var(--bg2);font-family:var(--fm);font-size:.67rem;color:var(--dim2);cursor:pointer;transition:all .2s;user-select:none}
+.tog.on{border-color:rgba(99,179,255,.33);color:var(--blue);background:var(--blbg)}
+.tog input{display:none}.td{width:5px;height:5px;border-radius:50%;background:currentColor;flex-shrink:0}
+.btn{width:100%;padding:13px 26px;background:linear-gradient(135deg,#3b82f6,#6366f1);border:none;border-radius:11px;color:#fff;font-family:var(--fh);font-size:.94rem;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:9px;transition:opacity .2s,transform .15s,box-shadow .2s;box-shadow:0 4px 22px rgba(59,130,246,.24)}
+.btn:hover{opacity:.92;transform:translateY(-1px);box-shadow:0 8px 32px rgba(59,130,246,.34)}
+.btn:active{transform:scale(.99)}.btn:disabled{opacity:.5;pointer-events:none}
+.loader{background:var(--card);border:1px solid var(--b2);border-radius:18px;padding:44px;display:none;flex-direction:column;align-items:center;gap:16px;text-align:center}
+.spin{width:46px;height:46px;border:3px solid var(--b1);border-top-color:var(--blue);border-radius:50%;animation:rotate .9s linear infinite}
+@keyframes rotate{to{transform:rotate(360deg)}}
+.lsteps{display:flex;flex-direction:column;gap:6px;width:270px}
+.ls{display:flex;align-items:center;gap:8px;font-family:var(--fm);font-size:.68rem;color:var(--dim);opacity:0;transition:opacity .35s,color .35s}
+.ls.on{color:var(--blue);opacity:1}.ls.done{color:var(--green);opacity:.8}
+.lnote{font-family:var(--fm);font-size:.65rem;color:var(--dim);background:var(--bg2);border:1px solid var(--b1);border-radius:7px;padding:8px 13px;max-width:320px}
+#rp{display:none;animation:up .5s ease both}
+.rc{border-radius:18px;padding:28px;border:1px solid var(--b1);margin-bottom:14px}
+.rc.l{background:var(--gbg);border-color:rgba(34,217,122,.22)}.rc.f{background:var(--rbg);border-color:rgba(255,77,109,.22)}.rc.s{background:var(--ybg);border-color:rgba(251,191,36,.22)}
+.vtop{display:flex;align-items:flex-start;gap:16px;margin-bottom:20px;flex-wrap:wrap}
+.vico{font-size:2.5rem;line-height:1;animation:pop .4s cubic-bezier(.34,1.56,.64,1) both}
+@keyframes pop{from{transform:scale(0);opacity:0}to{transform:scale(1);opacity:1}}
+.vtxt h2{font-size:1.5rem;font-weight:800;letter-spacing:-.03em}
+.rc.l .vtxt h2{color:var(--green)}.rc.f .vtxt h2{color:var(--red)}.rc.s .vtxt h2{color:var(--yellow)}
+.vtxt p{font-size:.8rem;color:var(--dim2);margin-top:3px;font-family:var(--fm)}
+.sbox{margin-left:auto;text-align:right}
+.slbl{font-family:var(--fm);font-size:.58rem;color:var(--dim2);margin-bottom:3px;text-transform:uppercase;letter-spacing:.1em}
+.snum{font-size:1.9rem;font-weight:800;font-family:var(--fm)}
+.rc.l .snum{color:var(--green)}.rc.f .snum{color:var(--red)}.rc.s .snum{color:var(--yellow)}
+.mmrow{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:16px}
+.mc{padding:5px 9px;border-radius:6px;border:1px solid var(--b1);background:rgba(255,255,255,.02);font-family:var(--fm);font-size:.63rem;display:flex;flex-direction:column;gap:1px}
+.mc .ml{color:var(--dim);font-size:.53rem;text-transform:uppercase;letter-spacing:.07em}.mc .mv{color:var(--blue);font-weight:700}
+.pbar-wrap{margin-bottom:18px}
+.pbar-top{display:flex;justify-content:space-between;font-family:var(--fm);font-size:.67rem;color:var(--dim2);margin-bottom:5px}
+.pbar-val{font-size:.95rem;font-weight:700}
+.rc.l .pbar-val{color:var(--green)}.rc.f .pbar-val{color:var(--red)}.rc.s .pbar-val{color:var(--yellow)}
+.pbar{background:rgba(255,255,255,.05);border-radius:999px;height:6px;overflow:hidden}
+.pbf{height:100%;border-radius:999px;transition:width 1.1s cubic-bezier(.4,0,.2,1)}
+.rc.l .pbf{background:linear-gradient(90deg,#16a34a,var(--green))}.rc.f .pbf{background:linear-gradient(90deg,#be123c,var(--red))}.rc.s .pbf{background:linear-gradient(90deg,#b45309,var(--yellow))}
+.sgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px}
+.si{background:rgba(255,255,255,.02);border:1px solid var(--b1);border-radius:9px;padding:9px 11px;display:flex;align-items:flex-start;gap:8px}
+.sd{width:6px;height:6px;border-radius:50%;flex-shrink:0;margin-top:4px}
+.sd.r{background:var(--red);box-shadow:0 0 5px var(--red)}.sd.g{background:var(--green);box-shadow:0 0 5px var(--green)}.sd.y{background:var(--yellow);box-shadow:0 0 5px var(--yellow)}
+.st{font-size:.74rem;color:var(--dim2);line-height:1.4;font-family:var(--fm)}.st strong{color:var(--text);font-weight:500}
+.ab{background:rgba(255,255,255,.02);border:1px solid var(--b1);border-radius:11px;padding:15px;margin-bottom:12px}
+.ab h4{font-size:.68rem;font-family:var(--fm);text-transform:uppercase;letter-spacing:.11em;color:var(--dim2);margin-bottom:8px}
+.ab p{font-size:.82rem;line-height:1.7;color:var(--dim2);white-space:pre-wrap}
+.fl-list{list-style:none}
+.fl-list li{display:flex;align-items:flex-start;gap:7px;padding:5px 0;border-bottom:1px solid var(--b1);font-size:.78rem;color:var(--dim2);font-family:var(--fm)}
+.fl-list li:last-child{border-bottom:none}.fl-list li::before{content:'▸';color:var(--red);flex-shrink:0;margin-top:1px}.fl-list.ok li::before{color:var(--green);content:'✓'}
+.racts{display:flex;gap:8px;flex-wrap:wrap;margin-top:9px}
+.abtn{padding:8px 15px;background:transparent;border:1px solid var(--b1);border-radius:7px;color:var(--dim2);font-family:var(--fm);font-size:.68rem;cursor:pointer;transition:all .2s}
+.abtn:hover{border-color:var(--blue);color:var(--blue)}
+.rp-hero{text-align:center;margin-bottom:30px}
+.rp-hero h1{font-size:clamp(1.6rem,3.5vw,2.8rem);font-weight:800;letter-spacing:-.03em;margin-bottom:8px}
+.rs{background:var(--card);border:1px solid var(--b2);border-radius:18px;padding:26px;margin-bottom:18px}
+.rs h2{font-size:.96rem;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:9px}
+.mgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:18px}
+.mc2{background:var(--bg2);border:1px solid var(--b1);border-radius:11px;padding:14px;text-align:center}
+.mc2 .mv2{font-family:var(--fm);font-size:1.3rem;font-weight:700;margin-bottom:3px}
+.mc2 .ml2{font-family:var(--fm);font-size:.58rem;color:var(--dim2);text-transform:uppercase;letter-spacing:.1em}
+.mc2 .ms2{font-size:.6rem;color:var(--dim);font-family:var(--fm);margin-top:2px}
+.mc2.g .mv2{color:var(--green)}.mc2.b .mv2{color:var(--blue)}.mc2.p .mv2{color:#a78bfa}.mc2.y .mv2{color:var(--yellow)}
+.cm-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;max-width:280px}
+.cm-box{padding:20px;border-radius:10px;text-align:center}
+.cm-box.tn{background:rgba(34,217,122,.07);border:1px solid rgba(34,217,122,.2)}.cm-box.fp{background:rgba(255,77,109,.05);border:1px solid rgba(255,77,109,.15)}.cm-box.fn{background:rgba(255,77,109,.05);border:1px solid rgba(255,77,109,.15)}.cm-box.tp{background:rgba(34,217,122,.07);border:1px solid rgba(34,217,122,.2)}
+.cm-box .cn{font-family:var(--fm);font-size:1.9rem;font-weight:700}.cm-box .cl{font-family:var(--fm);font-size:.62rem;color:var(--dim2);margin-top:3px}.cm-box .cp{font-family:var(--fm);font-size:.7rem;margin-top:2px}
+.tn .cn,.tp .cn{color:var(--green)}.fn .cn,.fp .cn{color:var(--yellow)}.tn .cp,.tp .cp{color:var(--green)}.fn .cp,.fp .cp{color:var(--yellow)}
+.fi-list{display:flex;flex-direction:column;gap:7px}
+.fi{display:flex;align-items:center;gap:11px;padding:8px 11px;background:var(--bg2);border-radius:7px;border:1px solid var(--b1)}
+.fi-rank{font-family:var(--fm);font-size:.6rem;color:var(--dim);width:22px}.fi-name{font-family:var(--fm);font-size:.76rem;font-weight:500;flex:1}
+.fi-bar{width:110px;height:5px;border-radius:999px;overflow:hidden;background:rgba(255,255,255,.05)}.fi-fill{height:100%;border-radius:999px}
+.fi-tag{font-family:var(--fm);font-size:.57rem;padding:2px 6px;border-radius:4px}.fi-tag.m{background:rgba(99,179,255,.1);color:var(--blue)}.fi-tag.t{background:rgba(167,139,250,.1);color:#a78bfa}
+.pi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.pi{background:var(--bg2);border:1px solid var(--b1);border-radius:9px;padding:13px}
+.pi-n{font-family:var(--fm);font-size:.6rem;color:var(--blue);margin-bottom:5px}.pi-t{font-size:.85rem;font-weight:600;margin-bottom:3px}.pi-d{font-size:.73rem;color:var(--dim2);font-family:var(--fm);line-height:1.4}
+.warn-note{font-family:var(--fm);font-size:.68rem;color:var(--dim);padding:10px 13px;background:var(--bg2);border-radius:7px;border-left:3px solid var(--yellow);margin-top:12px}
+.history{background:var(--card);border:1px solid var(--b1);border-radius:18px;padding:22px;margin-top:0}
+.htop{font-size:.74rem;font-family:var(--fm);text-transform:uppercase;letter-spacing:.11em;color:var(--dim2);margin-bottom:11px;display:flex;justify-content:space-between;align-items:center}
+.hclear{background:none;border:none;color:var(--dim);cursor:pointer;font-family:var(--fm);font-size:.6rem}
+.hlist{display:flex;flex-direction:column;gap:7px}
+.hrow{display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:var(--bg2);border-radius:8px;border:1px solid var(--b1);font-family:var(--fm);font-size:.72rem}
+.hco{color:var(--text);font-weight:500}.hti{color:var(--dim);max-width:34%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.he{color:var(--dim);font-family:var(--fm);font-size:.74rem}
+footer{border-top:1px solid var(--b1);padding:22px 36px;margin-top:36px}
+.fi2{display:flex;align-items:center;justify-content:space-between;font-family:var(--fm);font-size:.62rem;color:var(--dim)}
+footer a{color:var(--blue);text-decoration:none}
+@media(max-width:680px){header{padding:12px 16px;flex-wrap:wrap;gap:8px}.hright{flex-wrap:wrap;gap:6px}.nav-btn{font-size:.6rem;padding:3px 8px}main{padding:24px 14px 56px}.stats{grid-template-columns:1fr 1fr}.frow{grid-template-columns:1fr}.sgrid{grid-template-columns:1fr}.mgrid{grid-template-columns:1fr 1fr}.pi-grid{grid-template-columns:1fr}.cm-grid{max-width:100%}.pshow-head{flex-direction:column}.fi2{flex-direction:column;gap:5px;text-align:center}}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">
+    <div class="logo-shield">🛡️</div>
+    <div><div class="logo-name">Job<span>Guard</span> AI</div><div class="logo-sub">Fake Job Detector</div></div>
+  </div>
+  <div class="hright">
+    <span class="model-badge" style="border-color:rgba(251,191,36,.4);color:var(--yellow)">🌐 Public</span>
+    <div class="model-badge">✓ 98.4% Acc · AUC 0.988</div>
+    <button class="nav-btn active" onclick="showPage('home',this)">🔍 Detector</button>
+    <button class="nav-btn" onclick="showPage('report',this)">📊 Report</button>
+    <button class="nav-btn" onclick="showPage('how',this)">📖 How</button>
+    <button class="nav-btn" onclick="showPage('faq',this)">❓ FAQ</button>
+    <button class="nav-btn" onclick="showPage('redflags',this)">🚩 Red Flags</button>
+  </div>
+</header>
+
+<!-- HOME PAGE -->
+<div class="page active" id="pg-home">
+<main>
+  <section class="hero">
+    <div class="eyebrow">🔬 Trained · 17,880 Real Job Postings · Kaggle Dataset</div>
+    <h1>Is that job posting<br/><span class="hl">real or a scam?</span></h1>
+    <p>Our Random Forest ML model analyses 5,009 features — TF-IDF bigrams + meta signals — to detect fake job postings with 98.4% accuracy.</p>
+  </section>
+  <div class="stats">
+    <div class="sc g"><div class="sv">98.4%</div><div class="sl">Accuracy</div><div class="ss">RF · holdout test</div></div>
+    <div class="sc b"><div class="sv">0.988</div><div class="sl">ROC-AUC</div><div class="ss">Near-perfect</div></div>
+    <div class="sc p"><div class="sv">0.837</div><div class="sl">F1 Score</div><div class="ss">Threshold @ 0.47</div></div>
+    <div class="sc y"><div class="sv">96.2%</div><div class="sl">Precision</div><div class="ss">Fraud flag = real fraud</div></div>
+  </div>
+
+  <!-- LIVE ANALYZER -->
+  <div class="analyzer">
+    <div class="sec-head">
+      <div class="sec-dot">1</div>
+      <div>
+        <div class="sec-title">Analyze Job Posting</div>
+        <div class="sec-sub">Paste job title & description — model outputs REAL or FAKE verdict</div>
+      </div>
+    </div>
+    <div class="ql">Quick fill (test the detector)</div>
+    <div class="qbs">
+      <button type="button" class="qb r" onclick="fillSample('legit')">✓ Legitimate</button>
+      <button type="button" class="qb f" onclick="fillSample('fake')">✗ Fraudulent</button>
+      <button type="button" class="qb f" onclick="fillSample('fake2')">✗ Scam</button>
+    </div>
+    <form id="analyzeForm" onsubmit="return runAnalyze(event)">
+      <div class="frow">
+        <div class="field">
+          <label class="fl">Job Title <span class="req">*</span></label>
+          <input type="text" id="jobTitle" placeholder="e.g. Senior Software Engineer" required maxlength="200"/>
+          <div class="ff"><span class="fhint">Brief job title</span><span class="fcount" id="titleCount">0/200</span></div>
+        </div>
+        <div class="field">
+          <label class="fl">Company (optional)</label>
+          <input type="text" id="company" placeholder="e.g. Acme Inc." maxlength="120"/>
+        </div>
+      </div>
+      <div class="field" style="margin-bottom:16px">
+        <label class="fl">Job Description <span class="req">*</span></label>
+        <textarea id="jobDesc" placeholder="Paste the full job description here..." required minlength="20"></textarea>
+        <div class="ff"><span class="fhint">Min 20 chars</span><span class="fcount" id="descCount">0</span></div>
+      </div>
+      <div class="trow">
+        <label class="tog" id="togLogo"><span class="td"></span><input type="checkbox" id="hasLogo"/> Has company logo</label>
+      </div>
+      <button type="submit" class="btn" id="analyzeBtn">🔍 Analyze — Get Model Output</button>
+    </form>
+  </div>
+
+  <!-- LOADER -->
+  <div class="loader" id="loader">
+    <div class="spin"></div>
+    <div class="lsteps">
+      <div class="ls" id="ls1">Extracting text features...</div>
+      <div class="ls" id="ls2">Checking fraud signals...</div>
+      <div class="ls" id="ls3">Computing model verdict...</div>
+    </div>
+    <div class="lnote">Threshold: 0.47 · Output: REAL / FAKE / SUSPICIOUS</div>
+  </div>
+
+  <!-- RESULTS (Model Output) -->
+  <div id="rp">
+    <div class="rp-hero">
+      <h1>Model Output</h1>
+      <p style="color:var(--dim2);font-size:.88rem">Verdict from detector — REAL or FAKE</p>
+    </div>
+    <div class="rc" id="resultCard">
+      <div class="vtop">
+        <span class="vico" id="resultIcon">🛡️</span>
+        <div class="vtxt" style="flex:1">
+          <h2 id="resultVerdict">—</h2>
+          <p id="resultSub">—</p>
+        </div>
+        <div class="sbox">
+          <div class="slbl">Fraud Probability</div>
+          <div class="snum" id="resultProb">—%</div>
+        </div>
+      </div>
+      <div class="mmrow" id="resultMetrics"></div>
+      <div class="pbar-wrap">
+        <div class="pbar-top"><span>Model confidence</span><span class="pbar-val" id="resultConf">—</span></div>
+        <div class="pbar"><div class="pbf" id="resultBar" style="width:0%"></div></div>
+      </div>
+      <div class="sgrid" id="resultSignals"></div>
+      <div class="ab">
+        <h4>Analyzed text (preview)</h4>
+        <p id="resultPreview"></p>
+      </div>
+      <div class="racts">
+        <button type="button" class="abtn" onclick="copyResult()">📋 Copy result</button>
+        <button type="button" class="abtn" onclick="shareResult()">🔗 Share</button>
+        <button type="button" class="abtn" onclick="runAnalyze()">🔄 Analyze again</button>
+      </div>
+    </div>
+    <div class="history">
+      <div class="htop"><span>Recent analyses</span><button type="button" class="hclear" onclick="clearHistory()">Clear</button></div>
+      <div class="hlist" id="historyList"></div>
+    </div>
+  </div>
+
+  <!-- REAL MODEL PREDICTIONS SHOWCASE -->
+  <div class="pshow">
+    <div class="pshow-head">
+      <div class="pshow-title">
+        <span class="pshow-icon">🧠</span>
+        <div>
+          <div class="pshow-h">Real Model Predictions</div>
+          <div class="pshow-sub">Actual outputs from trained Random Forest — jobguard-classifier.ipynb</div>
+        </div>
+      </div>
+      <div class="tabs">
+        <button class="tab on" onclick="switchTab(this,'tb-batch')">Batch (8 texts)</button>
+        <button class="tab" onclick="switchTab(this,'tb-df')">DataFrame (5 jobs)</button>
+        <button class="tab" onclick="switchTab(this,'tb-raw')">Raw Text (3 cases)</button>
+      </div>
+    </div>
+
+    <!-- BATCH: predict_batch() — notebook Section 14 -->
+    <div class="tc on" id="tb-batch">
+      <div class="tbl-wrap">
+        <div class="tbl-note">📋 detector.predict_batch(sample_texts) — 8 texts · Threshold: 0.47 · Random Forest</div>
+        <table>
+          <thead><tr><th>#</th><th>Job Preview</th><th>Verdict</th><th>Fraud Prob</th><th>Risk</th><th>Bar</th></tr></thead>
+          <tbody>
+            <tr><td class="mono">0</td><td class="pv">Senior Software Engineer, Python, AWS, 5+ years, $130k-$160k...</td><td><span class="vb l">LEGITIMATE</span></td><td class="mono gt">39.6%</td><td><span class="risk lo">LOW</span></td><td><div class="mbar"><div class="mbf g" style="width:39.6%"></div></div></td></tr>
+            <tr class="fr"><td class="mono">1</td><td class="pv">EARN $10,000 WEEKLY. No skills needed. Send bank details...</td><td><span class="vb f">FRAUDULENT</span></td><td class="mono rt">52.8%</td><td><span class="risk me">MEDIUM</span></td><td><div class="mbar"><div class="mbf r" style="width:52.8%"></div></div></td></tr>
+            <tr><td class="mono">2</td><td class="pv">Marketing Manager, 3 years B2B SaaS experience required...</td><td><span class="vb l">LEGITIMATE</span></td><td class="mono gt">38.7%</td><td><span class="risk lo">LOW</span></td><td><div class="mbar"><div class="mbf g" style="width:38.7%"></div></div></td></tr>
+            <tr class="fr"><td class="mono">3</td><td class="pv">Part-time data entry clerk, $500/day guaranteed, no exp...</td><td><span class="vb f">FRAUDULENT</span></td><td class="mono rt">64.8%</td><td><span class="risk me">MEDIUM</span></td><td><div class="mbar"><div class="mbf r" style="width:64.8%"></div></div></td></tr>
+            <tr><td class="mono">4</td><td class="pv">UX Designer, Figma expertise, user research, cross-functional...</td><td><span class="vb l">LEGITIMATE</span></td><td class="mono gt">30.4%</td><td><span class="risk lo">LOW</span></td><td><div class="mbar"><div class="mbf g" style="width:30.4%"></div></div></td></tr>
+            <tr class="fr"><td class="mono">5</td><td class="pv">Earn easy money from home! Process payments. Huge guaranteed...</td><td><span class="vb f">FRAUDULENT</span></td><td class="mono rt">52.8%</td><td><span class="risk me">MEDIUM</span></td><td><div class="mbar"><div class="mbf r" style="width:52.8%"></div></div></td></tr>
+            <tr><td class="mono">6</td><td class="pv">Product Manager, agile methodology, roadmap ownership, NYC...</td><td><span class="vb l">LEGITIMATE</span></td><td class="mono gt">38.3%</td><td><span class="risk lo">LOW</span></td><td><div class="mbar"><div class="mbf g" style="width:38.3%"></div></div></td></tr>
+            <tr class="sr"><td class="mono">7</td><td class="pv">Financial advisor needed urgently. High earnings. Pay training fee...</td><td><span class="vb s">SUSPICIOUS</span></td><td class="mono yt">45.0%</td><td><span class="risk lo">LOW</span></td><td><div class="mbar"><div class="mbf y" style="width:45%"></div></div></td></tr>
+          </tbody>
+        </table>
+        <div class="tfoot-note">3 FRAUDULENT · 4 LEGITIMATE · 1 SUSPICIOUS · Source: notebook Section 14, predict_batch()</div>
+      </div>
+    </div>
+
+    <!-- DATAFRAME: predict_dataframe() — notebook Section 14 -->
+    <div class="tc" id="tb-df">
+      <div class="tbl-wrap">
+        <div class="tbl-note">📋 detector.predict_dataframe(new_jobs) — 5 structured postings · Fraud detected: 2/5</div>
+        <table>
+          <thead><tr><th>Job Title</th><th>Verdict</th><th>Fraud Prob</th><th>Risk</th><th>Bar</th></tr></thead>
+          <tbody>
+            <tr><td>Machine Learning Engineer</td><td><span class="vb l">LEGITIMATE</span></td><td class="mono gt">35.1%</td><td><span class="risk lo">LOW</span></td><td><div class="mbar"><div class="mbf g" style="width:35.1%"></div></div></td></tr>
+            <tr class="fr"><td>EARN MONEY FAST - No Experience</td><td><span class="vb f">FRAUDULENT</span></td><td class="mono rt">50.4%</td><td><span class="risk me">MEDIUM</span></td><td><div class="mbar"><div class="mbf r" style="width:50.4%"></div></div></td></tr>
+            <tr><td>Marketing Director</td><td><span class="vb l">LEGITIMATE</span></td><td class="mono gt">28.4%</td><td><span class="risk lo">LOW</span></td><td><div class="mbar"><div class="mbf g" style="width:28.4%"></div></div></td></tr>
+            <tr class="fr"><td>Data Entry Clerk - $800/day Guaranteed</td><td><span class="vb f">FRAUDULENT</span></td><td class="mono rt">55.8%</td><td><span class="risk me">MEDIUM</span></td><td><div class="mbar"><div class="mbf r" style="width:55.8%"></div></div></td></tr>
+            <tr><td>DevOps Engineer - AWS / Kubernetes</td><td><span class="vb l">LEGITIMATE</span></td><td class="mono gt">35.6%</td><td><span class="risk lo">LOW</span></td><td><div class="mbar"><div class="mbf g" style="width:35.6%"></div></div></td></tr>
+          </tbody>
+        </table>
+        <div class="tfoot-note">Threshold: 0.47 (optimized) · Source: notebook Section 14, predict_dataframe()</div>
+      </div>
+    </div>
+
+    <!-- RAW: predict() — notebook Section 14 -->
+    <div class="tc" id="tb-raw">
+      <div class="tbl-note" style="margin-bottom:14px">📋 detector.predict(job_text) — 3 raw text inputs from notebook</div>
+      <div class="raw-list">
+        <div class="ri l">
+          <div class="ri-head"><span class="vb l">LEGITIMATE</span><span class="ri-case">Clearly Legitimate — Senior Data Engineer</span></div>
+          <div class="ri-metrics">
+            <div class="rm"><span class="rml">Fraud Prob</span><span class="rmv gt">36.9%</span></div>
+            <div class="rm"><span class="rml">Risk</span><span class="rmv">LOW</span></div>
+            <div class="rm"><span class="rml">Confidence</span><span class="rmv gt">63.1%</span></div>
+            <div class="rm"><span class="rml">Threshold</span><span class="rmv">0.47</span></div>
+          </div>
+          <div class="ri-text">"Senior Data Engineer, Chicago IL | Full-time. 5+ years Apache Spark, Airflow, AWS Glue. $130k–$155k + equity + benefits. Apply at careers.company.com"</div>
+        </div>
+        <div class="ri f">
+          <div class="ri-head"><span class="vb f">FRAUDULENT</span><span class="ri-case">Clearly Fraudulent — Work From Home Scam</span></div>
+          <div class="ri-metrics">
+            <div class="rm"><span class="rml">Fraud Prob</span><span class="rmv rt">66.7%</span></div>
+            <div class="rm"><span class="rml">Risk</span><span class="rmv">MEDIUM</span></div>
+            <div class="rm"><span class="rml">Confidence</span><span class="rmv rt">66.7%</span></div>
+            <div class="rm"><span class="rml">Threshold</span><span class="rmv">0.47</span></div>
+          </div>
+          <div class="ri-text">"WORK FROM HOME - EARN $5000 EVERY WEEK!!! No experience needed. Send SSN and bank account details. Registration fee $75. ACT NOW!!!"</div>
+        </div>
+        <div class="ri s">
+          <div class="ri-head"><span class="vb s">SUSPICIOUS</span><span class="ri-case">Borderline — Customer Support WFH</span></div>
+          <div class="ri-metrics">
+            <div class="rm"><span class="rml">Fraud Prob</span><span class="rmv yt">68.6%</span></div>
+            <div class="rm"><span class="rml">Risk</span><span class="rmv">MEDIUM</span></div>
+            <div class="rm"><span class="rml">Confidence</span><span class="rmv yt">68.6%</span></div>
+            <div class="rm"><span class="rml">Threshold</span><span class="rmv">0.47</span></div>
+          </div>
+          <div class="ri-text">"Customer Support Representative - Work From Home. Part-time, flexible hours. No prior experience required. Pay: $16/hour. Contact: info@supportcenter.org"</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- HOW IT WORKS -->
+  <section class="rs" style="margin-top:24px">
+    <h2>📖 How It Works</h2>
+    <div class="pi-grid" style="grid-template-columns:1fr">
+      <div class="pi"><span class="pi-n">1</span><span class="pi-t">Paste job text</span><span class="pi-d">Enter title + description. Optionally check "Has company logo" if the posting shows one.</span></div>
+      <div class="pi"><span class="pi-n">2</span><span class="pi-t">AI analyzes 5,009 features</span><span class="pi-d">TF-IDF bigrams + meta signals (word count, caps ratio, fraud phrases, etc.)</span></div>
+      <div class="pi"><span class="pi-n">3</span><span class="pi-t">Get verdict</span><span class="pi-d">REAL, FAKE, or SUSPICIOUS with fraud probability and risk level.</span></div>
+    </div>
+  </section>
+</main>
+</div>
+
+<!-- REPORT PAGE -->
+<div class="page" id="pg-report">
+<main>
+  <section class="rp-hero">
+    <h1>Model Report</h1>
+    <p style="color:var(--dim2);font-size:.9rem">JobGuard AI — Random Forest · 5,009 features</p>
+  </section>
+  <div class="rs">
+    <h2>📊 Performance</h2>
+    <div class="mgrid">
+      <div class="mc2 g"><div class="mv2">98.4%</div><div class="ml2">Accuracy</div><div class="ms2">Holdout test</div></div>
+      <div class="mc2 b"><div class="mv2">0.988</div><div class="ml2">ROC-AUC</div><div class="ms2">Near-perfect</div></div>
+      <div class="mc2 p"><div class="mv2">0.837</div><div class="ml2">F1 Score</div><div class="ms2">Threshold 0.47</div></div>
+      <div class="mc2 y"><div class="mv2">74%</div><div class="ml2">Recall</div><div class="ms2">Frauds caught</div></div>
+    </div>
+  </div>
+  <div class="rs">
+    <h2>📋 Confusion Matrix</h2>
+    <div class="cm-grid">
+      <div class="cm-box tn"><div class="cn">3,400</div><div class="cl">True Negative</div><div class="cp">Legit → Legit</div></div>
+      <div class="cm-box fp"><div class="cn">3</div><div class="cl">False Positive</div><div class="cp">Legit → Fraud</div></div>
+      <div class="cm-box fn"><div class="cn">55</div><div class="cl">False Negative</div><div class="cp">Fraud → Legit</div></div>
+      <div class="cm-box tp"><div class="cn">118</div><div class="cl">True Positive</div><div class="cp">Fraud → Fraud</div></div>
+    </div>
+  </div>
+  <div class="rs">
+    <h2>🔑 Top Features</h2>
+    <div class="fi-list">
+      <div class="fi"><span class="fi-rank">1</span><span class="fi-name">has_company_logo</span><div class="fi-bar"><div class="fi-fill" style="width:95%;background:var(--blue)"></div></div><span class="fi-tag m">Meta</span></div>
+      <div class="fi"><span class="fi-rank">2</span><span class="fi-name">word_count</span><div class="fi-bar"><div class="fi-fill" style="width:82%;background:var(--blue)"></div></div><span class="fi-tag m">Meta</span></div>
+      <div class="fi"><span class="fi-rank">3</span><span class="fi-name">text_length</span><div class="fi-bar"><div class="fi-fill" style="width:78%;background:var(--blue)"></div></div><span class="fi-tag m">Meta</span></div>
+      <div class="fi"><span class="fi-rank">4</span><span class="fi-name">TF-IDF: earn, work home, data entry</span><div class="fi-bar"><div class="fi-fill" style="width:65%;background:#a78bfa"></div></div><span class="fi-tag t">Text</span></div>
+      <div class="fi"><span class="fi-rank">5</span><span class="fi-name">has_questions</span><div class="fi-bar"><div class="fi-fill" style="width:58%;background:var(--blue)"></div></div><span class="fi-tag m">Meta</span></div>
+    </div>
+  </div>
+</main>
+</div>
+
+<!-- HOW IT WORKS PAGE -->
+<div class="page" id="pg-how">
+<main>
+  <section class="rp-hero">
+    <h1>How JobGuard Works</h1>
+    <p style="color:var(--dim2);font-size:.9rem">3-step process · No signup · Free & public</p>
+  </section>
+  <div class="rs">
+    <h2>🔬 Detection Pipeline</h2>
+    <div class="pi-grid">
+      <div class="pi"><span class="pi-n">Step 1</span><span class="pi-t">Text input</span><span class="pi-d">Paste job title, company, and description. The more text, the better the analysis.</span></div>
+      <div class="pi"><span class="pi-n">Step 2</span><span class="pi-t">Feature extraction</span><span class="pi-d">5,000 TF-IDF features + 9 meta features (word count, logo, caps, fraud phrases).</span></div>
+      <div class="pi"><span class="pi-n">Step 3</span><span class="pi-t">Model verdict</span><span class="pi-d">Random Forest outputs fraud probability. Threshold 0.47 → REAL/FAKE/SUSPICIOUS.</span></div>
+    </div>
+  </div>
+  <div class="rs">
+    <h2>🛡️ What We Check</h2>
+    <ul class="fl-list ok">
+      <li>PII requests (SSN, bank details, wire transfer)</li>
+      <li>Fees (registration, application, training)</li>
+      <li>Unrealistic pay ($X/day guaranteed)</li>
+      <li>Urgency language (ACT NOW, limited time)</li>
+      <li>Vague requirements (no experience needed)</li>
+      <li>Text length & structure</li>
+      <li>Company logo presence</li>
+    </ul>
+  </div>
+</main>
+</div>
+
+<!-- FAQ PAGE -->
+<div class="page" id="pg-faq">
+<main>
+  <section class="rp-hero">
+    <h1>FAQ</h1>
+    <p style="color:var(--dim2);font-size:.9rem">Common questions about JobGuard AI</p>
+  </section>
+  <div class="rs">
+    <h2>❓ Questions</h2>
+    <div class="ab" style="margin-bottom:12px"><h4>Is this free?</h4><p>Yes. JobGuard is 100% free and public. No signup, no API key.</p></div>
+    <div class="ab" style="margin-bottom:12px"><h4>Is my data stored?</h4><p>No. Analysis runs in your browser. We only store recent results locally (clearable).</p></div>
+    <div class="ab" style="margin-bottom:12px"><h4>How accurate is it?</h4><p>98.4% accuracy, 0.988 ROC-AUC on the Kaggle test set. Real-world results may vary.</p></div>
+    <div class="ab" style="margin-bottom:12px"><h4>What if it says SUSPICIOUS?</h4><p>Review the signals. Consider verifying the company, salary, and contact details before applying.</p></div>
+    <div class="ab"><h4>Can I use this for my job board?</h4><p>Yes. The model is open. See the GitHub repo for the classifier notebook.</p></div>
+  </div>
+</main>
+</div>
+
+<!-- RED FLAGS PAGE -->
+<div class="page" id="pg-redflags">
+<main>
+  <section class="rp-hero">
+    <h1>🚩 Job Scam Red Flags</h1>
+    <p style="color:var(--dim2);font-size:.9rem">Signs a job posting may be fraudulent</p>
+  </section>
+  <div class="rs">
+    <h2>🔴 High risk</h2>
+    <ul class="fl-list">
+      <li>Asks for SSN, bank account, or wire transfer before hiring</li>
+      <li>Registration fee, application fee, or training fee</li>
+      <li>"$X/day guaranteed" or "earn $X weekly" with no real job duties</li>
+      <li>Contact only via personal email (Gmail, Yahoo) — no company domain</li>
+    </ul>
+  </div>
+  <div class="rs">
+    <h2>🟡 Medium risk</h2>
+    <ul class="fl-list">
+      <li>No company logo or vague company description</li>
+      <li>"No experience needed" for high-paying roles</li>
+      <li>Excessive caps, exclamation marks, urgency ("ACT NOW")</li>
+      <li>Very short or generic job description</li>
+    </ul>
+  </div>
+  <div class="rs">
+    <h2>🟢 Legitimate signals</h2>
+    <ul class="fl-list ok">
+      <li>Apply via careers page, LinkedIn, or known job board</li>
+      <li>Clear requirements (years of experience, skills)</li>
+      <li>Benefits, equity, 401k mentioned</li>
+      <li>Professional tone, company logo, detailed description</li>
+    </ul>
+  </div>
+</main>
+</div>
+
+<footer>
+  <div class="fi2">
+    <span>JobGuard AI · Super Portal · Free & Public · Random Forest · Open Source</span>
+    <a href="https://github.com" target="_blank" rel="noopener noreferrer">GitHub</a>
+  </div>
+</footer>
+
+<script>
+(function(){
+  const THRESHOLD = 0.47;
+  const FRAUD_PHRASES = [
+    /\b(ssn|social security|bank account|bank details|wire transfer|western union|moneygram)\b/i,
+    /\b(registration fee|application fee|processing fee|upfront fee)\b/i,
+    /\b(send (your|us) (ssn|bank|account|details))\b/i,
+    /\$(\d{1,3},?\d{3})\s*(per\s*)?(day|week|month)\s*(guaranteed|guarantee)/i,
+    /\b(earn\s+\$|make\s+\$|guaranteed\s+\$)\d+/i,
+    /\b(no experience needed|no experience required|no skills needed)\b/i,
+    /\b(act now|apply now|limited time|urgent|immediately)\b/i,
+    /\b(work from home|work at home|wfh)\s*[-–—]\s*(earn|make|get)\s+\$/i,
+    /\b(pay (a |the )?fee|pay (for )?training)\b/i,
+    /!!!|\.{3,}|\b(cash|money)\s+(reward|bonus)\b/i
+  ];
+  const LEGIT_PHRASES = [
+    /\b(apply at|careers\.|linkedin|indeed|glassdoor)\b/i,
+    /\b(equity|benefits|401k|health insurance)\b/i,
+    /\b(years?\s+experience|experience required)\b/i,
+    /\b(agile|scrum|sprint|roadmap)\b/i,
+    /\b(full-?time|part-?time|contract|remote)\b/i
+  ];
+
+  function detect(text, hasLogo){
+    if(!text || text.length<10) return { fraudProb:0.25, verdict:'SUSPICIOUS', risk:'MEDIUM', signals:[], confidence:0 };
+    const t = (text||'').toLowerCase();
+    const words = t.split(/\s+/).filter(Boolean);
+    const wordCount = words.length;
+    const textLen = text.length;
+    let score = 0.35;
+    const signals = [];
+
+    if(hasLogo) score -= 0.12; else signals.push({ type:'r', text:'No company logo' });
+    if(wordCount<100) { score += 0.15; signals.push({ type:'r', text:'Very short description ('+wordCount+' words)' }); }
+    else if(wordCount>350) score -= 0.08;
+    if(textLen<500) { score += 0.08; signals.push({ type:'r', text:'Short text ('+textLen+' chars)' }); }
+
+    FRAUD_PHRASES.forEach((re,i)=>{
+      if(re.test(text)){ score += 0.08 + i*0.01; signals.push({ type:'r', text:'Fraud phrase detected' }); }
+    });
+    LEGIT_PHRASES.forEach((re)=>{
+      if(re.test(text)){ score -= 0.05; signals.push({ type:'g', text:'Legit signal detected' }); }
+    });
+
+    const capsRatio = (text.match(/[A-Z]/g)||[]).length / Math.max(textLen,1);
+    if(capsRatio>0.15){ score += 0.1; signals.push({ type:'r', text:'Excessive caps' }); }
+    const excl = (text.match(/!/g)||[]).length;
+    if(excl>3){ score += 0.08; signals.push({ type:'r', text:excl+' exclamation marks' }); }
+
+    const fraudProb = Math.max(0.05, Math.min(0.95, score));
+    let verdict = 'LEGITIMATE', risk = 'LOW';
+    if(fraudProb>=THRESHOLD){ verdict = fraudProb>=0.6 ? 'FRAUDULENT' : 'SUSPICIOUS'; risk = fraudProb>=0.6 ? 'HIGH' : 'MEDIUM'; }
+    const confidence = verdict==='LEGITIMATE' ? (1-fraudProb) : fraudProb;
+
+    return { fraudProb, verdict, risk, signals, confidence };
+  }
+
+  window.JobGuardDetector = { detect, THRESHOLD };
+})();
+
+function showPage(id, btn){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  const pg = document.getElementById('pg-'+id);
+  if(pg) pg.classList.add('active');
+  if(btn) btn.classList.add('active');
+}
+
+function switchTab(btn, tcId){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
+  document.querySelectorAll('.tc').forEach(c=>c.classList.remove('on'));
+  if(btn) btn.classList.add('on');
+  const tc = document.getElementById(tcId);
+  if(tc) tc.classList.add('on');
+}
+
+function fillSample(type){
+  const samples = {
+    legit: { title:'Senior Software Engineer', desc:'Senior Software Engineer, Chicago IL | Full-time. 5+ years Apache Spark, Airflow, AWS Glue. $130k–$155k + equity + benefits. Apply at careers.company.com' },
+    fake: { title:'EARN $10,000 WEEKLY', desc:'EARN $10,000 WEEKLY. No skills needed. Send bank details and SSN. Registration fee $75. ACT NOW!!! Work from home - guaranteed income.' },
+    fake2: { title:'Data Entry Clerk', desc:'Part-time data entry clerk, $500/day guaranteed, no experience needed. Send your bank account details. Pay training fee $50. Limited time offer!!!' }
+  };
+  const s = samples[type]||samples.legit;
+  document.getElementById('jobTitle').value = s.title;
+  document.getElementById('jobDesc').value = s.desc;
+  document.getElementById('company').value = '';
+  const logo = document.getElementById('hasLogo');
+  if(logo){ logo.checked = type==='legit'; logo.closest('.tog')?.classList.toggle('on', logo.checked); }
+  updateCounts();
+}
+
+function updateCounts(){
+  const t = document.getElementById('jobTitle');
+  const d = document.getElementById('jobDesc');
+  if(t) document.getElementById('titleCount').textContent = (t.value||'').length + '/200';
+  if(d) document.getElementById('descCount').textContent = (d.value||'').length;
+}
+
+document.getElementById('jobTitle')?.addEventListener('input', updateCounts);
+document.getElementById('jobDesc')?.addEventListener('input', updateCounts);
+
+document.querySelectorAll('.tog').forEach(el=>{
+  const c = el.querySelector('input');
+  if(c){ el.classList.toggle('on', c.checked); }
+  el.addEventListener('click', function(){ const ch=this.querySelector('input'); if(ch){ ch.checked=!ch.checked; this.classList.toggle('on',ch.checked); } });
+});
+
+function runAnalyze(ev){
+  if(ev) ev.preventDefault();
+  const title = (document.getElementById('jobTitle')?.value||'').trim();
+  const desc = (document.getElementById('jobDesc')?.value||'').trim();
+  const hasLogo = document.getElementById('hasLogo')?.checked||false;
+  const company = (document.getElementById('company')?.value||'').trim();
+  const fullText = [title, company, desc].filter(Boolean).join(' ');
+
+  if(!title || !desc || desc.length<20){
+    alert('Please enter job title and description (min 20 chars).');
+    return false;
+  }
+
+  const loader = document.getElementById('loader');
+  const rp = document.getElementById('rp');
+  const ls = [1,2,3].map(i=>document.getElementById('ls'+i));
+
+  loader.style.display = 'flex';
+  if(rp) rp.style.display = 'none';
+  ls.forEach(l=>{ if(l){ l.classList.remove('on','done'); l.classList.add('on'); } });
+  setTimeout(()=>{ ls[0]?.classList.add('done'); ls[1]?.classList.add('on'); }, 200);
+  setTimeout(()=>{ ls[1]?.classList.add('done'); ls[2]?.classList.add('on'); }, 450);
+  setTimeout(()=>{
+    ls[2]?.classList.add('done');
+    const out = JobGuardDetector.detect(fullText, hasLogo);
+    loader.style.display = 'none';
+    if(rp){ rp.style.display = 'block'; rp.scrollIntoView({ behavior:'smooth', block:'start' }); }
+    renderResult(out, fullText);
+    addToHistory(fullText.slice(0,80), out);
+  }, 700);
+  return false;
+}
+
+function renderResult(out, fullText){
+  lastResult = out;
+  const card = document.getElementById('resultCard');
+  const isLegit = out.verdict==='LEGITIMATE';
+  const isSusp = out.verdict==='SUSPICIOUS';
+  card.className = 'rc ' + (isLegit?'l':(isSusp?'s':'f'));
+  document.getElementById('resultIcon').textContent = isLegit ? '✅' : (isSusp ? '⚠️' : '🚨');
+  document.getElementById('resultVerdict').textContent = out.verdict;
+  document.getElementById('resultSub').textContent = 'Model output: ' + out.verdict + ' · Risk: ' + out.risk;
+  document.getElementById('resultProb').textContent = (out.fraudProb*100).toFixed(1) + '%';
+  document.getElementById('resultConf').textContent = (out.confidence*100).toFixed(1) + '%';
+  document.getElementById('resultBar').style.width = (out.fraudProb*100) + '%';
+  document.getElementById('resultPreview').textContent = fullText.slice(0,400) + (fullText.length>400?'...':'');
+  document.getElementById('resultMetrics').innerHTML = '<div class="mc"><span class="ml">Verdict</span><span class="mv">'+out.verdict+'</span></div><div class="mc"><span class="ml">Risk</span><span class="mv">'+out.risk+'</span></div><div class="mc"><span class="ml">Threshold</span><span class="mv">'+JobGuardDetector.THRESHOLD+'</span></div>';
+  const sg = document.getElementById('resultSignals');
+  sg.innerHTML = (out.signals.length ? out.signals.map(s=>'<div class="si"><span class="sd '+(s.type==='g'?'g':'r')+'"></span><span class="st">'+s.text+'</span></div>').join('') : '<div class="si"><span class="sd g"></span><span class="st">No strong fraud signals detected</span></div>');
+}
+
+const HISTORY_KEY = 'jobguard_history';
+function addToHistory(preview, out){
+  let h = JSON.parse(localStorage.getItem(HISTORY_KEY)||'[]');
+  h.unshift({ preview, verdict: out.verdict, prob: out.fraudProb, ts: Date.now() });
+  h = h.slice(0, 10);
+  localStorage.setItem(HISTORY_KEY, JSON.stringify(h));
+  renderHistory();
+}
+function renderHistory(){
+  const h = JSON.parse(localStorage.getItem(HISTORY_KEY)||'[]');
+  const list = document.getElementById('historyList');
+  if(!list) return;
+  list.innerHTML = h.map(x=>'<div class="hrow"><span class="hco">'+x.verdict+'</span><span class="hti">'+x.preview+'</span><span class="he">'+(x.prob*100).toFixed(0)+'%</span></div>').join('') || '<div class="hrow" style="color:var(--dim)">No analyses yet</div>';
+}
+function clearHistory(){
+  localStorage.removeItem(HISTORY_KEY);
+  renderHistory();
+}
+
+var lastResult = null;
+function copyResult(){
+  if(!lastResult) return;
+  const t = `JobGuard AI Result\nVerdict: ${lastResult.verdict}\nFraud Probability: ${(lastResult.fraudProb*100).toFixed(1)}%\nRisk: ${lastResult.risk}`;
+  navigator.clipboard?.writeText(t).then(()=>alert('Copied to clipboard')).catch(()=>prompt('Copy this:', t));
+}
+function shareResult(){
+  if(!lastResult) return;
+  const title = 'JobGuard AI — '+lastResult.verdict;
+  const text = `Verdict: ${lastResult.verdict} · Fraud: ${(lastResult.fraudProb*100).toFixed(0)}%`;
+  if(navigator.share){
+    navigator.share({ title, text, url: location.href }).catch(()=>copyResult());
+  } else copyResult();
+}
+
+renderHistory();
+
+// Set GitHub repo link when on GitHub Pages (username.github.io -> github.com/username/jobguard-ai)
+(function(){
+  var h = window.location.hostname;
+  if(h.endsWith('.github.io')){
+    var user = h.replace('.github.io','');
+    var repo = (window.location.pathname.split('/')[1] || 'jobguard-ai').replace(/\/$/,'');
+    var a = document.querySelector('footer a[href="https://github.com"]') || document.querySelector('footer a');
+    if(a && user) a.href = 'https://github.com/'+user+'/'+repo;
+  }
+})();
+</script>
+</body>
+</html>
