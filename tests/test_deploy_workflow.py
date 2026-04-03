@@ -21,15 +21,22 @@ def test_deploy_workflow_is_wired_for_pages():
     assert trigger["push"]["branches"] == ["main"]
     assert "workflow_dispatch" in trigger
 
-    assert config["permissions"]["contents"] == "write"
+    assert config["permissions"]["contents"] == "read"
+    assert config["permissions"]["pages"] == "write"
+    assert config["permissions"]["id-token"] == "write"
     assert config["jobs"]["deploy"]["runs-on"] == "ubuntu-latest"
+    assert config["jobs"]["deploy"]["environment"]["name"] == "github-pages"
+    assert config["jobs"]["deploy"]["environment"]["url"] == "${{ steps.deployment.outputs.page_url }}"
 
     steps = config["jobs"]["deploy"]["steps"]
     step_uses = [step.get("uses") for step in steps if isinstance(step, dict)]
     assert "actions/checkout@v4" in step_uses
-    assert "peaceiris/actions-gh-pages@v4" in step_uses
+    assert "actions/configure-pages@v5" in step_uses
+    assert "actions/upload-pages-artifact@v3" in step_uses
+    assert "actions/deploy-pages@v4" in step_uses
 
-    deploy_step = next(step for step in steps if step.get("uses") == "peaceiris/actions-gh-pages@v4")
-    assert deploy_step["with"]["publish_branch"] == "gh-pages"
-    assert deploy_step["with"]["publish_dir"] == "./_site"
+    upload_step = next(step for step in steps if step.get("uses") == "actions/upload-pages-artifact@v3")
+    assert upload_step["with"]["path"] == "./_site"
 
+    deploy_step = next(step for step in steps if step.get("uses") == "actions/deploy-pages@v4")
+    assert deploy_step["id"] == "deployment"
