@@ -1,15 +1,13 @@
 # Enable GitHub Pages — Fix 404
 
-The deploy workflow publishes the portal to `gh-pages`. Enable Pages in repo settings:
+The deploy workflow publishes the portal through GitHub Actions. Enable Pages in repo settings:
 
 ## Steps
 
 1. Go to **https://github.com/Santhakumarramesh/jobguard-ai**
 2. Click **Settings** → **Pages** (left sidebar)
 3. Under **Build and deployment**:
-   - **Source:** Deploy from a branch
-   - **Branch:** `gh-pages` (select from dropdown)
-   - **Folder:** `/ (root)`
+   - **Source:** GitHub Actions
 4. Click **Save**
 
 ## Wait 1–2 minutes
@@ -20,4 +18,4 @@ Your portal will be live at:
 
 ---
 
-If the branch dropdown doesn't show `gh-pages`, the workflow may not have run. Go to **Actions** and run the workflow manually (Run workflow).
+If Pages still shows a stale build, go to **Actions** and re-run the deploy workflow manually (Run workflow).

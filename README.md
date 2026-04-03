@@ -71,9 +71,7 @@ git remote add origin https://github.com/YOUR_USERNAME/jobguard-ai.git
 git branch -M main
 git push -u origin main
 
-# 4. Enable Pages: Repo → Settings → Pages → Source: Deploy from a branch
-#    Branch: gh-pages
-#    Folder: / (root)
+# 4. Enable Pages: Repo → Settings → Pages → Source: GitHub Actions
 # 5. Site goes live at https://YOUR_USERNAME.github.io/jobguard-ai
 ```
 
