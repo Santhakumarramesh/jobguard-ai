@@ -1,6 +1,6 @@
 # Enable GitHub Pages — Fix 404
 
-Your `gh-pages` branch has the portal files. Enable Pages in repo settings:
+The deploy workflow publishes the portal to `gh-pages`. Enable Pages in repo settings:
 
 ## Steps
 

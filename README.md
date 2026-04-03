@@ -62,7 +62,7 @@ Portal displays actual outputs from `jobguard-classifier.ipynb`:
 ```bash
 # 1. Initialize (if needed) and commit
 git add .
-git commit -m "JobGuard AI - Fake job detector portal"
+git commit -m "Deploy JobGuard AI"
 
 # 2. Create repo on GitHub: github.com/new → name: jobguard-ai
 
@@ -71,7 +71,9 @@ git remote add origin https://github.com/YOUR_USERNAME/jobguard-ai.git
 git branch -M main
 git push -u origin main
 
-# 4. Enable Pages: Repo → Settings → Pages → Source: GitHub Actions
+# 4. Enable Pages: Repo → Settings → Pages → Source: Deploy from a branch
+#    Branch: gh-pages
+#    Folder: / (root)
 # 5. Site goes live at https://YOUR_USERNAME.github.io/jobguard-ai
 ```
 

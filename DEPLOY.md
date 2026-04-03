@@ -24,8 +24,10 @@ git push -u origin main
 ## Step 3: Enable GitHub Pages
 
 1. In your repo, go to **Settings** → **Pages**
-2. Under **Source**, select **GitHub Actions**
-3. Save
+2. Under **Source**, select **Deploy from a branch**
+3. Set **Branch** to `gh-pages`
+4. Set **Folder** to `/ (root)`
+5. Save
 
 ## Step 4: Wait for deploy
 
