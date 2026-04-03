@@ -13,6 +13,8 @@ Thumbs.db
 model_artifacts/
 outputs/
 data/
+jobguard-dataset.csv
+dataset/*.csv
 
 # Development
 .vscode/

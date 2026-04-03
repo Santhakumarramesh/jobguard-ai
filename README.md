@@ -121,7 +121,6 @@ GitHub Actions runs the smoke suite on every push and pull request:
 ```
 jobguard-ai/
 ├── index.html              ← Portal (live analyzer, model output)
-├── jobguard-dataset.csv    ← Primary Kaggle dataset (17,880 rows)
 ├── jobguard-classifier.ipynb
 ├── jobguard/               ← Reusable package
 ├── tests/                  ← Smoke tests for notebook, API, pipeline, and workflow
@@ -129,7 +128,7 @@ jobguard-ai/
 │   ├── download_datasets.py
 │   └── augment_fraud_data.py
 ├── requirements.txt
-├── data/                   ← Generated (jobguard-augmented.csv, etc.)
+├── data/                   ← Local generated datasets (git-ignored)
 ├── DEPLOY.md
 ├── ENABLE_PAGES.md
 ├── ADD_WORKFLOW.md
@@ -137,6 +136,8 @@ jobguard-ai/
     ├── ci.yml
     └── deploy.yml
 ```
+
+Datasets are intentionally not committed. Download Kaggle data locally as `jobguard-dataset.csv` or generate local files under `data/`.
 
 ## 🔑 Top Features (Random Forest Importance)
 
