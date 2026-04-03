@@ -26,7 +26,7 @@
 **Training Dataset:** [Kaggle Fake Job Postings](https://www.kaggle.com/datasets/shivamb/real-or-fake-fake-jobposting-predicting)
 - 17,880 job postings
 - 4.84% fraud rate
-- SMOTE balancing applied
+- Class balancing applied
 
 ## 🧠 Real Model Predictions (from notebook)
 
@@ -49,13 +49,13 @@ Portal displays actual outputs from `jobguard-classifier.ipynb`:
    ```
 2. **Text Cleaning** — NLTK, lemmatization, stopwords removal
 3. **Feature Engineering** — TF-IDF 5,000 features + 9 meta-features
-4. **SMOTE Balancing** — 50/50 fraud/legit for training
+4. **Class Balancing** — 50/50 fraud/legit training split with oversampling
 5. **5-Fold CV Training** — Random Forest selected as best
 6. **Threshold Optimization** — 0.50 → 0.47 (F1: 0.803 → 0.837)
 
 ## 🚀 Live Demo & Deployment
 
-**Live at:** `https://YOUR_USERNAME.github.io/jobguard-ai`
+**Live at:** [https://santhakumarramesh.github.io/jobguard-ai/](https://santhakumarramesh.github.io/jobguard-ai/)
 
 ### Create Repo & Deploy
 
@@ -79,6 +79,45 @@ git push -u origin main
 
 The portal includes a **live analyzer** that outputs REAL or FAKE verdicts.
 
+## 🧩 Reusable Python Package
+
+The notebook now delegates the core logic to the `jobguard/` package:
+
+- `jobguard/text.py` for text cleaning and feature extraction
+- `jobguard/pipeline.py` for training, evaluation, threshold selection, and artifact export
+- `jobguard/detector.py` for loading trained artifacts and scoring job posts
+- `jobguard/heuristics.py` for the rule-based fallback detector
+- `jobguard/api.py` for the FastAPI inference service
+
+The notebook remains the report and experiment runner, while the reusable code is importable from Python.
+
+## 🔌 Inference API
+
+Run the API locally with:
+
+```bash
+uvicorn jobguard.api:app --reload
+```
+
+Key endpoints:
+
+- `GET /`
+- `GET /health`
+- `GET /model-info`
+- `POST /predict`
+- `POST /predict/batch`
+
+The API accepts either raw job text or structured job fields and falls back to the rule-based detector if trained artifacts are unavailable.
+
+## ✅ CI Smoke Tests
+
+GitHub Actions runs the smoke suite on every push and pull request:
+
+- notebook validation and compilation
+- deployment workflow validation
+- API request/response checks
+- pipeline training and threshold smoke test
+
 ## 📁 Project Structure
 
 ```
@@ -86,12 +125,19 @@ jobguard-ai/
 ├── index.html              ← Portal (live analyzer, model output)
 ├── jobguard-dataset.csv    ← Primary Kaggle dataset (17,880 rows)
 ├── jobguard-classifier.ipynb
-├── requirements.txt
+├── jobguard/               ← Reusable package
+├── tests/                  ← Smoke tests for notebook, API, pipeline, and workflow
 ├── scripts/
-│   ├── download_datasets.py   ← Merge Kaggle + HuggingFace
-│   └── augment_fraud_data.py  ← Augment fraud samples for robustness
+│   ├── download_datasets.py
+│   └── augment_fraud_data.py
+├── requirements.txt
 ├── data/                   ← Generated (jobguard-augmented.csv, etc.)
-└── .github/workflows/deploy.yml
+├── DEPLOY.md
+├── ENABLE_PAGES.md
+├── ADD_WORKFLOW.md
+└── .github/workflows/
+    ├── ci.yml
+    └── deploy.yml
 ```
 
 ## 🔑 Top Features (Random Forest Importance)
@@ -114,7 +160,7 @@ Fraudulent        |      55 ❌ |     118 ✅
 ## 🛠️ Technologies
 
 - **Frontend:** Pure HTML5, CSS3, Vanilla JS (single file, no dependencies)
-- **Detector:** Client-side heuristic engine mirroring Random Forest features (TF-IDF patterns, meta signals, fraud phrases)
+- **Detector:** Reusable Python inference package with a heuristic fallback and FastAPI service
 - **Model Output:** Verdict (REAL/FAKE/SUSPICIOUS), fraud probability, risk level, signals
 - **Deployment:** GitHub Pages (auto-deploy on push to main)
 
